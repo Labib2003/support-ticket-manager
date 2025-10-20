@@ -1,29 +1,43 @@
-import { Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
+import { TicketsService } from './tickets.service';
 
 @Controller('tickets')
 export class TicketsController {
+  constructor(private ticketsService: TicketsService) {}
+
   @Get()
   findMany() {
-    return 'Paginated list of tickets';
+    return this.ticketsService.findMany();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return `Get ticket with ID: ${id}`;
+    if (isNaN(Number(id))) throw new Error('Invalid ID');
+    return this.ticketsService.findOne(Number(id));
   }
 
   @Post()
-  create() {
-    return 'Create a new ticket';
+  create(@Body() body: Record<string, unknown>) {
+    return this.ticketsService.create(body);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string) {
-    return `Update ticket with ID: ${id}`;
+  update(@Param('id') id: number, @Body() body: Record<string, unknown>) {
+    if (isNaN(Number(id))) throw new Error('Invalid ID');
+    return this.ticketsService.update(Number(id), body);
   }
 
-  @Delete()
-  delete() {
-    return 'Delete a ticket';
+  @Delete(':id')
+  delete(@Param('id') id: number) {
+    if (isNaN(Number(id))) throw new Error('Invalid ID');
+    return this.ticketsService.delete(Number(id));
   }
 }
