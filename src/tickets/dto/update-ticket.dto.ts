@@ -1,5 +1,5 @@
 import { createUpdateSchema } from 'drizzle-zod';
-import * as schema from 'src/db/schema';
+import * as schema from 'db/schema';
 import z from 'zod';
 
 export const updateTicketSchema = createUpdateSchema(schema.posts);
