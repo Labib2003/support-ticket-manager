@@ -10,34 +10,37 @@ export class TicketsService {
   constructor(private readonly drizzle: DrizzleService) {}
 
   async findMany() {
-    return await this.drizzle.db.select().from(schema.posts);
+    return await this.drizzle.db.select().from(schema.tickets);
   }
 
   async findOne(id: string) {
     return (
       await this.drizzle.db
         .select()
-        .from(schema.posts)
-        .where(eq(schema.posts.id, id))
+        .from(schema.tickets)
+        .where(eq(schema.tickets.id, id))
         .limit(1)
     )[0];
   }
 
   async create(data: CreateTicketDto) {
-    return await this.drizzle.db.insert(schema.posts).values(data).returning();
+    return await this.drizzle.db
+      .insert(schema.tickets)
+      .values(data)
+      .returning();
   }
 
   async update(id: string, data: UpdateTicketDto) {
     return await this.drizzle.db
-      .update(schema.posts)
+      .update(schema.tickets)
       .set(data)
-      .where(eq(schema.posts.id, id))
+      .where(eq(schema.tickets.id, id))
       .returning();
   }
 
   async delete(id: string) {
     return await this.drizzle.db
-      .delete(schema.posts)
-      .where(eq(schema.posts.id, id));
+      .delete(schema.tickets)
+      .where(eq(schema.tickets.id, id));
   }
 }
