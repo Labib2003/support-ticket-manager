@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   UsePipes,
@@ -23,26 +22,23 @@ export class TicketsController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.ticketsService.findOne(Number(id));
+  findOne(@Param('id') id: string) {
+    return this.ticketsService.findOne(id);
   }
 
   @Post()
   @UsePipes(new ZodValidationPipe(createTicketSchema))
-  create(@Body() body: Record<string, unknown>) {
+  create(@Body() body: CreateTicketDto) {
     return this.ticketsService.create(body);
   }
 
   @Patch(':id')
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: Record<string, unknown>,
-  ) {
-    return this.ticketsService.update(Number(id), body);
+  update(@Param('id') id: string, @Body() body: Record<string, unknown>) {
+    return this.ticketsService.update(id, body);
   }
 
   @Delete(':id')
-  delete(@Param('id', ParseIntPipe) id: number) {
-    return this.ticketsService.delete(Number(id));
+  delete(@Param('id') id: string) {
+    return this.ticketsService.delete(id);
   }
 }

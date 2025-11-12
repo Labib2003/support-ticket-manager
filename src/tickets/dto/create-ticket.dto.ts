@@ -1,10 +1,8 @@
 import z from 'zod';
+import { createInsertSchema } from 'drizzle-zod';
+import * as schema from 'src/db/schema';
 
-const ticketSchema = z.strictObject({
-  title: z.string().min(5).max(100),
-  description: z.string().min(10).max(1000),
+export const createTicketSchema = createInsertSchema(schema.posts).omit({
+  id: true,
 });
-
-export const createTicketSchema = ticketSchema;
-
 export type CreateTicketDto = z.infer<typeof createTicketSchema>;

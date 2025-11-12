@@ -1,35 +1,45 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { CreateTicketDto } from './dto/create-ticket.dto';
+import { DrizzleAsyncProvider } from 'src/drizzle/drizzle.provider';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import * as schema from 'src/db/schema';
+import { eq } from 'drizzle-orm';
+import { UpdateTicketDto } from './dto/update-ticket.dto';
 
 @Injectable()
 export class TicketsService {
-  private tickets = [];
+  constructor(
+    @Inject(DrizzleAsyncProvider)
+    private readonly db: NodePgDatabase<typeof schema>,
+  ) {}
 
-  findMany() {
-    return this.tickets;
+  async findMany() {
+    return await this.db.select().from(schema.posts);
   }
 
-  findOne(id: number) {
-    const ticket = this.tickets.find((ticket) => ticket.id === id);
-    if (!ticket) throw new NotFoundException(`Ticket with id ${id} not found`);
-    return ticket;
+  async findOne(id: string) {
+    return (
+      await this.db
+        .select()
+        .from(schema.posts)
+        .where(eq(schema.posts.id, id))
+        .limit(1)
+    )[0];
   }
 
-  create(data: Record<string, unknown>) {
-    this.tickets.push({ ...data, id: this.tickets.length + 1 });
-    return this.findOne(this.tickets.length);
+  async create(data: CreateTicketDto) {
+    return await this.db.insert(schema.posts).values(data).returning();
   }
 
-  update(id: number, data: Record<string, unknown>) {
-    this.tickets = this.tickets.map((ticket) =>
-      ticket.id === id ? { ...ticket, ...data } : ticket,
-    );
-    return this.findOne(id);
+  async update(id: string, data: UpdateTicketDto) {
+    return await this.db
+      .update(schema.posts)
+      .set(data)
+      .where(eq(schema.posts.id, id))
+      .returning();
   }
 
-  delete(id: number) {
-    const deletedTicket = this.findOne(id);
-    this.tickets = this.tickets.filter((ticket) => ticket.id !== id);
-
-    return deletedTicket;
+  async delete(id: string) {
+    return await this.db.delete(schema.posts).where(eq(schema.posts.id, id));
   }
 }
