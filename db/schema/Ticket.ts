@@ -1,5 +1,5 @@
 import { pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
-import { users } from './User';
+import { user } from './Auth';
 
 export const ticketStatus = pgEnum('ticket_status', [
   'OPEN',
@@ -13,9 +13,9 @@ export const tickets = pgTable('tickets', {
   title: text('title').notNull(),
   body: text('body').notNull(),
   status: ticketStatus('status').default('OPEN'),
-  createdById: uuid('created_by_id')
+  createdById: text('created_by_id')
     .notNull()
-    .references(() => users.id),
+    .references(() => user.id),
 
   createdAt: timestamp('created_at').defaultNow(),
 });

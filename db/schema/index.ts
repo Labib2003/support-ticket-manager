@@ -1,3 +1,3 @@
 /* eslint-disable */
 export * from './Ticket';
-export * from './User';
+export * from './Auth';
