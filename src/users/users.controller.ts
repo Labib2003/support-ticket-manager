@@ -13,8 +13,10 @@ import { CreateUserDto, createUserSchema } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ZodValidationPipe } from 'src/pipes/zod-validation.pipe';
 import { updateTicketSchema } from 'src/tickets/dto/update-ticket.dto';
+import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 
 @Controller('users')
+@AllowAnonymous()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
