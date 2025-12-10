@@ -13,16 +13,17 @@ import { CreateUserDto, createUserSchema } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ZodValidationPipe } from 'src/pipes/zod-validation.pipe';
 import { updateTicketSchema } from 'src/tickets/dto/update-ticket.dto';
-import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
+import { Roles } from '@thallesp/nestjs-better-auth';
 
 @Controller('users')
-@AllowAnonymous()
+@Roles(['ADMIN'])
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @UsePipes(new ZodValidationPipe(createUserSchema))
-  create(@Body() createUserDto: CreateUserDto) {
+  create(
+    @Body(new ZodValidationPipe(createUserSchema)) createUserDto: CreateUserDto,
+  ) {
     return this.usersService.create(createUserDto);
   }
 
@@ -37,8 +38,11 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @UsePipes(new ZodValidationPipe(updateTicketSchema))
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  update(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(updateTicketSchema))
+    updateUserDto: UpdateUserDto,
+  ) {
     return this.usersService.update(id, updateUserDto);
   }
 

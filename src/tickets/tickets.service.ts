@@ -9,8 +9,13 @@ import { DrizzleService } from 'src/drizzle/drizzle.service';
 export class TicketsService {
   constructor(private readonly drizzle: DrizzleService) {}
 
-  async findMany() {
-    return await this.drizzle.db.select().from(schema.tickets);
+  async findMany(createdById?: string) {
+    return await this.drizzle.db
+      .select()
+      .from(schema.tickets)
+      .where(
+        createdById ? eq(schema.tickets.createdById, createdById) : undefined,
+      );
   }
 
   async findOne(id: string) {
