@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  UsePipes,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, createUserSchema } from './dto/create-user.dto';
@@ -14,13 +13,23 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ZodValidationPipe } from 'src/pipes/zod-validation.pipe';
 import { updateTicketSchema } from 'src/tickets/dto/update-ticket.dto';
 import { Roles } from '@thallesp/nestjs-better-auth';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { UserDto } from './dto/select-user.dto';
 
 @Controller('users')
 @Roles(['ADMIN'])
+@ApiUnauthorizedResponse({ description: 'Unauthorized' })
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create a new user (Admin only)' })
+  @ApiCreatedResponse({ description: 'User created successfully' })
   create(
     @Body(new ZodValidationPipe(createUserSchema)) createUserDto: CreateUserDto,
   ) {
@@ -28,16 +37,26 @@ export class UsersController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all users (Admin only)' })
+  @ApiOkResponse({
+    description: 'List of users retrieved successfully',
+    type: UserDto,
+    isArray: true,
+  })
   findAll() {
     return this.usersService.findAll();
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get a user by ID (Admin only)' })
+  @ApiOkResponse({ description: 'User retrieved successfully', type: UserDto })
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Update a user (Admin only)' })
+  @ApiOkResponse({ description: 'User updated successfully' })
   update(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateTicketSchema))
@@ -47,6 +66,8 @@ export class UsersController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a user (Admin only)' })
+  @ApiOkResponse({ description: 'User deleted successfully' })
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
