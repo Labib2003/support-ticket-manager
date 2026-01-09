@@ -1,6 +1,7 @@
+import { users } from 'db/schema';
+import { createSelectSchema } from 'drizzle-zod';
 import { createZodDto } from 'nestjs-zod';
-import z from 'zod';
 
-export const selectUserSchema = z.object({});
+export const selectUserSchema = createSelectSchema(users);
 export const UserDto = createZodDto(selectUserSchema);
 Object.defineProperty(UserDto, 'name', { value: 'UserDto' });
