@@ -17,17 +17,11 @@ import { sessions, users } from 'db/schema';
 import { eq } from 'drizzle-orm';
 import { SignupDto } from './dto/signup.dto';
 
-export interface UserSession {
-  sessionId: string;
-  userId: string;
-  expiresAt: Date;
-}
-
-type SessionValidationResult =
+export type SessionValidationResult =
   | {
-      session: UserSession;
-      user: Omit<typeof users.$inferSelect, 'password'>;
-    }
+    session: Omit<typeof sessions.$inferSelect, 'id'>;
+    user: Omit<typeof users.$inferSelect, 'password'>;
+  }
   | { session: null; user: null };
 
 @Injectable()
@@ -35,7 +29,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly drizzleService: DrizzleService,
-  ) {}
+  ) { }
 
   private hashPassword = async (password: string) => {
     return hash(password, {
@@ -83,9 +77,7 @@ export class AuthService {
     return session;
   }
 
-  private async validateSessionToken(
-    token: string,
-  ): Promise<SessionValidationResult> {
+  async validateSessionToken(token: string): Promise<SessionValidationResult> {
     const sessionId = this.deriveSessionId(token);
 
     const [result] = await this.drizzleService.db
