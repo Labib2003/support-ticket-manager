@@ -1,19 +1,9 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto, createUserSchema } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ZodValidationPipe } from 'src/pipes/zod-validation.pipe';
 import { updateTicketSchema } from 'src/tickets/dto/update-ticket.dto';
 import {
-  ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiUnauthorizedResponse,
@@ -24,15 +14,6 @@ import { UserDto } from './dto/select-user.dto';
 @ApiUnauthorizedResponse({ description: 'Unauthorized' })
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
-  @Post()
-  @ApiOperation({ summary: 'Create a new user (Admin only)' })
-  @ApiCreatedResponse({ description: 'User created successfully' })
-  create(
-    @Body(new ZodValidationPipe(createUserSchema)) createUserDto: CreateUserDto,
-  ) {
-    return this.usersService.create(createUserDto);
-  }
 
   @Get()
   @ApiOperation({ summary: 'Get all users (Admin only)' })

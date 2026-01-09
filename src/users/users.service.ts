@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { DrizzleService } from 'src/drizzle/drizzle.service';
 import { users } from 'db/schema';
@@ -8,10 +7,6 @@ import { eq } from 'drizzle-orm';
 @Injectable()
 export class UsersService {
   constructor(private readonly drizzle: DrizzleService) {}
-
-  async create(createUserDto: CreateUserDto) {
-    return this.drizzle.db.insert(users).values(createUserDto).returning();
-  }
 
   async findAll() {
     return this.drizzle.db.select().from(users);
