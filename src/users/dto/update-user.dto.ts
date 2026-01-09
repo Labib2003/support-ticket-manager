@@ -1,6 +1,4 @@
-import { createUpdateSchema } from 'drizzle-zod';
-import * as schema from 'db/schema';
 import z from 'zod';
 
-export const updateUserSchema = createUpdateSchema(schema.user);
+export const updateUserSchema = z.object({});
 export type UpdateUserDto = z.infer<typeof updateUserSchema>;

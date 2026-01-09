@@ -12,7 +12,6 @@ import { CreateUserDto, createUserSchema } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ZodValidationPipe } from 'src/pipes/zod-validation.pipe';
 import { updateTicketSchema } from 'src/tickets/dto/update-ticket.dto';
-import { Roles } from '@thallesp/nestjs-better-auth';
 import {
   ApiCreatedResponse,
   ApiOkResponse,
@@ -22,7 +21,6 @@ import {
 import { UserDto } from './dto/select-user.dto';
 
 @Controller('users')
-@Roles(['ADMIN'])
 @ApiUnauthorizedResponse({ description: 'Unauthorized' })
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

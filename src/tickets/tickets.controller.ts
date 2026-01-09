@@ -12,7 +12,6 @@ import {
 import { TicketsService } from './tickets.service';
 import { ZodValidationPipe } from 'src/pipes/zod-validation.pipe';
 import { CreateTicketDto, createTicketSchema } from './dto/create-ticket.dto';
-import { Roles, Session, UserSession } from '@thallesp/nestjs-better-auth';
 import { updateTicketSchema } from './dto/update-ticket.dto';
 import {
   ApiOkResponse,
@@ -36,10 +35,8 @@ export class TicketsController {
     type: TicketDto,
     isArray: true,
   })
-  findMany(@Session() session: UserSession) {
-    const createdById =
-      session.user.role === 'USER' ? session.user.id : undefined;
-    return this.ticketsService.findMany(createdById);
+  findMany() {
+    return this.ticketsService.findMany();
   }
 
   @Get(':id')
@@ -48,33 +45,26 @@ export class TicketsController {
     description: 'Ticket retrieved successfully',
     type: TicketDto,
   })
-  async findOne(@Param('id') id: string, @Session() session: UserSession) {
+  async findOne(@Param('id') id: string) {
     const ticket = await this.ticketsService.findOne(id);
 
     if (!ticket) throw new NotFoundException('Ticket not found');
-    if (session.user.role === 'USER' && ticket.createdById !== session.user.id)
-      throw new UnauthorizedException(
-        'You are not authorized to access this ticket',
-      );
 
     return ticket;
   }
 
   @Post()
-  @Roles(['USER'])
   @ApiOperation({ summary: 'Create a new ticket (User only)' })
   @ApiOkResponse({ description: 'Ticket created successfully' })
   create(
-    @Session() session: UserSession,
     @Body(new ZodValidationPipe(createTicketSchema.omit({ createdById: true })))
     body: CreateTicketDto,
   ) {
-    const userId = session.user.id;
+    const userId = '';
     return this.ticketsService.create({ ...body, createdById: userId });
   }
 
   @Patch(':id')
-  @Roles(['ADMIN'])
   @ApiOperation({ summary: 'Update a ticket (Admin only)' })
   @ApiOkResponse({
     description: 'Ticket updated successfully',
@@ -88,7 +78,6 @@ export class TicketsController {
   }
 
   @Delete(':id')
-  @Roles(['ADMIN'])
   @ApiOperation({ summary: 'Delete a ticket (Admin only)' })
   @ApiOkResponse({ description: 'Ticket deleted successfully' })
   delete(@Param('id') id: string) {
