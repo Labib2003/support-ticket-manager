@@ -5,9 +5,7 @@ import { corsConfig } from './config/cors';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    bodyParser: false, // Required for Better Auth
-  });
+  const app = await NestFactory.create(AppModule, {});
   app.enableCors(corsConfig);
   app.useGlobalFilters(new DbExceptionFilter());
 
@@ -15,6 +13,7 @@ async function bootstrap() {
     .setTitle('Tickets API')
     .setDescription('Support Tickets Management API')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, swaggerDocument);

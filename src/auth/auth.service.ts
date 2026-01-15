@@ -19,9 +19,9 @@ import { SignupDto } from './dto/signup.dto';
 
 export type SessionValidationResult =
   | {
-    session: Omit<typeof sessions.$inferSelect, 'id'>;
-    user: Omit<typeof users.$inferSelect, 'password'>;
-  }
+      session: Omit<typeof sessions.$inferSelect, 'id'>;
+      user: Omit<typeof users.$inferSelect, 'password'>;
+    }
   | { session: null; user: null };
 
 @Injectable()
@@ -29,7 +29,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly drizzleService: DrizzleService,
-  ) { }
+  ) {}
 
   private hashPassword = async (password: string) => {
     return hash(password, {

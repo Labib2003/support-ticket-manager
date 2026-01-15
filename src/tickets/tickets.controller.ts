@@ -7,7 +7,6 @@ import {
   Param,
   Patch,
   Post,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { TicketsService } from './tickets.service';
 import { ZodValidationPipe } from 'src/pipes/zod-validation.pipe';
@@ -23,7 +22,7 @@ import { TicketDto } from './dto/select-ticket.dto';
 @Controller('tickets')
 @ApiUnauthorizedResponse({ description: 'Unauthorized' })
 export class TicketsController {
-  constructor(private ticketsService: TicketsService) {}
+  constructor(private ticketsService: TicketsService) { }
 
   @Get()
   @ApiOperation({
