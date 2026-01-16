@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { LoginDto } from './dto/login.dto';
-import { User } from 'src/users/dto/select-user.dto';
 import { hash, verify } from '@node-rs/argon2';
 import { DrizzleService } from 'src/drizzle/drizzle.service';
 import {
@@ -13,14 +12,14 @@ import {
   encodeHexLowerCase,
 } from '@oslojs/encoding';
 import { sha256 } from '@oslojs/crypto/sha2';
-import { sessions, users } from 'db/schema';
+import { ISafeUser, ISession, sessions, IUser, users } from 'db/schema';
 import { eq } from 'drizzle-orm';
 import { SignupDto } from './dto/signup.dto';
 
 export type SessionValidationResult =
   | {
-      session: Omit<typeof sessions.$inferSelect, 'id'>;
-      user: Omit<typeof users.$inferSelect, 'password'>;
+      session: ISession;
+      user: ISafeUser;
     }
   | { session: null; user: null };
 
@@ -40,7 +39,7 @@ export class AuthService {
     });
   };
 
-  private verifyPassword = async (password: string, user?: User) => {
+  private verifyPassword = async (password: string, user?: IUser) => {
     if (!user) throw new NotFoundException('User not found');
     const passwordMatch = await verify(user.password, password);
     if (!passwordMatch) throw new UnauthorizedException('Invalid credentials');
@@ -87,6 +86,7 @@ export class AuthService {
           id: users.id,
           name: users.name,
           email: users.email,
+          role: users.role,
           createdAt: users.createdAt,
           updatedAt: users.updatedAt,
         },

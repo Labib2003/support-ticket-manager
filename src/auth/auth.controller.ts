@@ -1,27 +1,21 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Post,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ZodValidationPipe } from 'src/pipes/zod-validation.pipe';
-import { SignUpBody, SignupDto, signupSchema } from './dto/signup.dto';
+import { SignUpBody, SignupDto } from './dto/signup.dto';
 import { LoginBody, LoginDto, loginSchema } from './dto/login.dto';
 import { AuthGuard } from './auth.guard';
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiHeaders,
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
+import { Session } from './session.decorator';
+import { ISession } from 'db/schema';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
   @ApiOperation({ summary: 'Register a new user' })
@@ -42,12 +36,12 @@ export class AuthController {
     return this.authService.login(body);
   }
 
-  @UseGuards(AuthGuard)
   @Delete('logout')
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'User logout' })
   @ApiOkResponse({ description: 'User logged out successfully' })
   @ApiBearerAuth()
-  logout(@Request() req) {
-    return this.authService.logout(req.session.sessionId);
+  logout(@Session() session: ISession) {
+    return this.authService.logout(session.sessionId);
   }
 }

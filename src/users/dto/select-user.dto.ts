@@ -10,5 +10,4 @@ export const UserDto = createZodDto(
     updatedAt: z.string(),
   }),
 );
-export type User = z.infer<typeof selectUserSchema>;
 Object.defineProperty(UserDto, 'name', { value: 'UserDto' });

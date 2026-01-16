@@ -9,7 +9,7 @@ import { AuthService } from './auth.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService) {}
 
   private extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
@@ -24,12 +24,12 @@ export class AuthGuard implements CanActivate {
     try {
       const { session, user } =
         await this.authService.validateSessionToken(token);
-      if (!session || !user) throw new UnauthorizedException('Invalid session');
+      if (!session || !user) throw new UnauthorizedException('Invalid token');
 
       request['session'] = session;
       request['user'] = user;
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Invalid token');
     }
 
     return true;

@@ -7,6 +7,8 @@ import {
   Param,
   Patch,
   Post,
+  UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { TicketsService } from './tickets.service';
 import { ZodValidationPipe } from 'src/pipes/zod-validation.pipe';
@@ -18,13 +20,17 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { TicketDto } from './dto/select-ticket.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { User } from 'src/auth/user.decorator';
+import { ISafeUser } from 'db/schema';
 
 @Controller('tickets')
 @ApiUnauthorizedResponse({ description: 'Unauthorized' })
 export class TicketsController {
-  constructor(private ticketsService: TicketsService) { }
+  constructor(private ticketsService: TicketsService) {}
 
   @Get()
+  @UseGuards(AuthGuard)
   @ApiOperation({
     summary:
       'Retrieve all tickets; admins receive all tickets, while users get their own created tickets',
@@ -34,36 +40,45 @@ export class TicketsController {
     type: TicketDto,
     isArray: true,
   })
-  findMany() {
-    return this.ticketsService.findMany();
+  findMany(@User() user: ISafeUser) {
+    let createdById: string | undefined;
+    if (user.role === 'USER') createdById = user.id;
+
+    return this.ticketsService.findMany(createdById);
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Get a ticket by ID' })
   @ApiOkResponse({
     description: 'Ticket retrieved successfully',
     type: TicketDto,
   })
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string, @User() user: ISafeUser) {
     const ticket = await this.ticketsService.findOne(id);
 
     if (!ticket) throw new NotFoundException('Ticket not found');
+    if (user.role !== 'ADMIN' && ticket.createdById !== user.id)
+      throw new UnauthorizedException();
 
     return ticket;
   }
 
   @Post()
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Create a new ticket (User only)' })
   @ApiOkResponse({ description: 'Ticket created successfully' })
   create(
     @Body(new ZodValidationPipe(createTicketSchema.omit({ createdById: true })))
     body: CreateTicketDto,
+    @User() user: ISafeUser,
   ) {
-    const userId = '';
+    const userId = user.id;
     return this.ticketsService.create({ ...body, createdById: userId });
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Update a ticket (Admin only)' })
   @ApiOkResponse({
     description: 'Ticket updated successfully',
@@ -72,14 +87,18 @@ export class TicketsController {
     @Param('id') id: string,
     @Body(new ZodValidationPipe(updateTicketSchema))
     body: Record<string, unknown>,
+    @User() user: ISafeUser,
   ) {
+    if (user.role !== 'ADMIN') throw new UnauthorizedException();
     return this.ticketsService.update(id, body);
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Delete a ticket (Admin only)' })
   @ApiOkResponse({ description: 'Ticket deleted successfully' })
-  delete(@Param('id') id: string) {
+  delete(@Param('id') id: string, @User() user: ISafeUser) {
+    if (user.role !== 'ADMIN') throw new UnauthorizedException();
     return this.ticketsService.delete(id);
   }
 }
