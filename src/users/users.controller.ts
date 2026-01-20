@@ -1,16 +1,31 @@
-import { Controller, Get, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ZodValidationPipe } from 'src/pipes/zod-validation.pipe';
 import { updateTicketSchema } from 'src/tickets/dto/update-ticket.dto';
 import {
+  ApiBearerAuth,
   ApiOkResponse,
   ApiOperation,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { UserDto } from './dto/select-user.dto';
+import { Roles } from 'src/auth/roles.decorator';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
 
 @Controller('users')
+@ApiBearerAuth()
+@Roles('ADMIN')
+@UseGuards(AuthGuard, RolesGuard)
 @ApiUnauthorizedResponse({ description: 'Unauthorized' })
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
